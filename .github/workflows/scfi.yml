@@ -1,33 +1,33 @@
 name: 更新SCFI运价指数
 
-  # 航交所每周五发布，这里周三和周六各跑一次：
-  # 周六那次拿当周的新值，周三那次兜底（节假日调休、周五没发出来的情况）。
-  # 脚本按日期去重，多跑几次不会有重复数据。
-  on:
-    schedule:
-      - cron: '23 6 * * 3,6'   # UTC 06:23 = 北京时间 14:23
-    workflow_dispatch:          # 也可以在网页上手动点一下立即运行
+# 航交所每周五发布，这里周三和周六各跑一次：
+# 周六那次拿当周的新值，周三那次兜底（节假日调休、周五没发出来的情况）。
+# 脚本按日期去重，多跑几次不会有重复数据。
+on:
+  schedule:
+    - cron: '23 6 * * 3,6'   # UTC 06:23 = 北京时间 14:23
+  workflow_dispatch:          # 也可以在网页上手动点一下立即运行
 
-  permissions:
-    contents: write             # 允许把结果提交回仓库
+permissions:
+  contents: write             # 允许把结果提交回仓库
 
-  jobs:
-    update:
-      runs-on: ubuntu-latest
-      steps:
-        - uses: actions/checkout@v4
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
 
-        - name: 抓取并更新 scfi.json
-          run: python3 scrape.py
+      - name: 抓取并更新 scfi.json
+        run: python3 scrape.py
 
-        - name: 提交结果
-          run: |
-            git config user.name "scfi-bot"
-            git config user.email "scfi-bot@users.noreply.github.com"
-            git add scfi.json
-            if git diff --staged --quiet; then
-              echo "指数没有变化，不提交"
-            else
-              git commit -m "SCFI 更新 $(date -u +%F)"
-              git push
-            fi
+      - name: 提交结果
+        run: |
+          git config user.name "scfi-bot"
+          git config user.email "scfi-bot@users.noreply.github.com"
+          git add scfi.json
+          if git diff --staged --quiet; then
+            echo "指数没有变化，不提交"
+          else
+            git commit -m "SCFI 更新 $(date -u +%F)"
+            git push
+          fi
